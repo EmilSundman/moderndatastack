@@ -1,0 +1,5 @@
+load_from:
+    - grpc_server:
+        host: dbt-code-location
+        port: 1001
+        location_name: "dbt Core Layer" 

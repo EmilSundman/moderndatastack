@@ -1,0 +1,14 @@
+# dbt dependencies
+dbt-core==1.10.13
+dbt-duckdb==1.9.6
+
+# Main Dagster version 
+dagster==1.12.0
+
+# Dagster integrations
+dagster-dbt==0.28.0
+dagster-postgres==0.28.0
+dagster-docker==0.28.0
+
+# Duckdb
+duckdb==1.4.1  

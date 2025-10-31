@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+
+  # Dagster Services
+  platform-dagster-webserver:
+    image: ${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID must be set}.dkr.ecr.${AWS_REGION:-eu-north-1}.amazonaws.com/composia-webserver:latest
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "${PORT:-8080}"
+      - -w
+      - workspace.yaml
+    container_name: platform_dagster_webserver
+    expose:
+      - "${PORT:-8080}"
+    ports:
+      - "1000:${PORT:-8080}"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      ENVIRONMENT: ${ENVIRONMENT:-PROD}
+      PORT: ${PORT:-1000}
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - network_dagster
+    depends_on:
+      - platform-dbt
+    restart: unless-stopped
+
+  platform-dagster-daemon:
+    image: ${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID must be set}.dkr.ecr.${AWS_REGION:-eu-north-1}.amazonaws.com/composia-daemon:latest
+    entrypoint:
+      - dagster-daemon
+      - run
+    container_name: platform_dagster_daemon
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PORT: ${PORT:-8080}
+    env_file:
+      - .env
+    expose:
+      - "${PORT:-8080}"
+    ports: 
+      - "1070:${PORT:-8080}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - network_dagster
+    depends_on:
+      - platform-dbt
+    restart: unless-stopped
+
+  # Code Locations
+  platform-dbt:
+    image: ${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID must be set}.dkr.ecr.${AWS_REGION:-eu-north-1}.amazonaws.com/composia-code-location-dbt:latest
+    container_name: platform_dbt
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ENVIRONMENT: ${ENVIRONMENT:-PROD}
+      DAGSTER_CURRENT_IMAGE: ${AWS_ACCOUNT_ID:?AWS_ACCOUNT_ID must be set}.dkr.ecr.${AWS_REGION:-eu-north-1}.amazonaws.com/composia-code-location-dbt:latest
+      PORT: ${PORT:-8080}
+    expose:
+      - "${PORT:-8080}"
+    ports: 
+      - "1001:${PORT:-8080}"
+    networks:
+      - network_dagster
+    restart: unless-stopped
+
+networks:
+  network_dagster:
+    driver: bridge
+    name: network_dagster 

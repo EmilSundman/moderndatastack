@@ -1,0 +1,16 @@
+dbt_core:
+  target: duckdb_dev
+  # DuckDB Adapters
+  outputs:
+    duckdb_dev:
+      type: duckdb
+      path: /opt/dagster/app/db/dev.duckdb
+      schema: main
+      threads: 20
+
+    duckdb_prod:
+      type: duckdb
+      path: /opt/dagster/app/db/prod.duckdb
+      schema: main
+      threads: 4
+

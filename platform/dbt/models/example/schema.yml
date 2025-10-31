@@ -1,0 +1,33 @@
+
+version: 2
+
+models:
+  - name: my_first_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        data_tests:
+          - unique
+
+  - name: my_second_dbt_model
+    description: "A starter dbt model"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+      - name: a_message
+        description: "Displays hello world"
+
+  - name: my_combined_model
+    description: "Combines both upstream models with load timestamp"
+    columns:
+      - name: id
+        description: "Combined ID from both models"
+      - name: first_model_id
+        description: "ID from my_first_dbt_model"
+      - name: second_model_id
+        description: "ID from my_second_dbt_model"
+      - name: a_message
+        description: "Message from my_second_dbt_model"
+      - name: load_dts
+        description: "Timestamp when the data was loaded"
