@@ -1,0 +1,119 @@
+services:
+
+  # Database
+  dagster_postgres:
+    image: postgres:17.5
+    container_name: dagster_postgres
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    networks:
+      - network_dagster
+
+  # Dagster Services
+  dagster-webserver:
+    image: ${IMAGE_NAME_WEBSERVER:-dagster-webserver}
+    container_name: ${IMAGE_NAME_WEBSERVER:-dagster-webserver}
+    
+    build:
+      context: .
+      dockerfile: platform/dagster/Dockerfile
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "80"
+      - -w
+      - workspace.yaml
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-LOCAL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PORT: 80
+    env_file:
+      - .env
+    expose:
+      - 80
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - network_dagster
+
+  dagster-daemon:
+    image: ${IMAGE_NAME_DAEMON:-dagster-daemon}
+    container_name: ${IMAGE_NAME_DAEMON:-dagster-daemon}
+    build:
+      context: .
+      dockerfile: platform/dagster/Dockerfile
+    entrypoint:
+      - dagster-daemon
+      - run
+    restart: on-failure
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-LOCAL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PORT: 9090
+    env_file:
+      - .env
+    expose:
+      - 9090
+    ports: 
+      - 9090:9090
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./db:/opt/dagster/app/db
+    networks:
+      - network_dagster
+
+  # Code Locations
+  dbt-code-location:
+    image: ${IMAGE_NAME_CODE_LOCATION_DBT:-dbt-code-location}
+    container_name: ${IMAGE_NAME_CODE_LOCATION_DBT:-dbt-code-location}
+    build:
+      context: .
+      dockerfile: platform/dbt/Dockerfile
+    restart: always
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-LOCAL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DAGSTER_CURRENT_IMAGE: ${IMAGE_NAME_CODE_LOCATION_DBT:-dbt-code-location}
+      PORT: 1001
+    env_file:
+      - .env
+    expose:
+      - 1001
+    ports: 
+      - 1001:1001
+    volumes:
+      - ./db:/opt/dagster/app/db
+    networks:
+      - network_dagster
+
+volumes: 
+  pgdata:
+
+networks:
+  network_dagster:
+    driver: bridge
+    name: network_dagster

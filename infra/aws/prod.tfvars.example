@@ -1,0 +1,39 @@
+# Production Environment Variables - EXAMPLE FILE
+# Copy this file to prod.tfvars and fill in your actual values
+# Usage: terraform apply -var-file="prod.tfvars"
+
+# Project Configuration
+project_name = "moderndatastack"
+environment  = "prod"
+
+# AWS Configuration
+aws_region     = "eu-north-1"
+aws_account_id = "YOUR_AWS_ACCOUNT_ID_HERE"  # Set your AWS Account ID
+
+# VPC and Networking
+vpc_cidr                    = "10.1.0.0/16"
+subnet_cidr                 = "10.1.1.0/24"
+secondary_subnet_cidr       = "10.1.2.0/24"
+availability_zone           = "eu-north-1a"
+secondary_availability_zone = "eu-north-1b"
+
+# SSH Access (restrict to your IP in production)
+allowed_ssh_cidr_blocks = ["YOUR_IP_ADDRESS/32"]  # Replace with your actual IP address
+
+# EC2 Configuration
+instance_type    = "t3.small"  # Larger instance for production
+root_volume_size = 30
+
+# SSH Key (replace with your actual public key)
+ssh_public_key = "ssh-rsa YOUR_PUBLIC_KEY_HERE"
+
+# PostgreSQL Configuration
+postgres_engine_version         = "15.4"
+postgres_instance_class         = "db.t3.small"  # Larger instance for production
+postgres_allocated_storage      = 100 
+postgres_max_allocated_storage = 1000
+postgres_db_name                = "moderndatastack_prod"
+postgres_username               = "moderndatastack_admin"
+postgres_password               = "CHANGE_ME_TO_SECURE_PASSWORD"  # Use a strong password!
+postgres_backup_retention_period = 30
+

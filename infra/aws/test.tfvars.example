@@ -1,0 +1,39 @@
+# Development/Test Environment Variables - EXAMPLE FILE
+# Copy this file to test.tfvars and fill in your actual values
+# Usage: terraform apply -var-file="test.tfvars"
+
+# Project Configuration
+project_name = "moderndatastack"
+environment  = "test"
+
+# AWS Configuration
+aws_region     = "eu-north-1"
+aws_account_id = "YOUR_AWS_ACCOUNT_ID_HERE"  # Set your AWS Account ID
+
+# VPC and Networking
+vpc_cidr                    = "10.0.0.0/16"
+subnet_cidr                 = "10.0.1.0/24"
+secondary_subnet_cidr       = "10.0.2.0/24"
+availability_zone           = "eu-north-1a"
+secondary_availability_zone = "eu-north-1b"
+
+# SSH Access (restrict to your IP in production)
+allowed_ssh_cidr_blocks = ["YOUR_IP_ADDRESS/32"]  # Replace with your actual IP address
+
+# EC2 Configuration
+instance_type    = "t3.micro"  # Smaller instance for dev/test
+root_volume_size = 10
+
+# SSH Key (replace with your actual public key)
+ssh_public_key = "ssh-rsa YOUR_PUBLIC_KEY_HERE"
+
+# PostgreSQL Configuration
+postgres_engine_version         = "15.4"
+postgres_instance_class         = "db.t3.micro"  # Smaller instance for dev/test
+postgres_allocated_storage      = 20
+postgres_max_allocated_storage = 100
+postgres_db_name                = "moderndatastack_test"
+postgres_username               = "moderndatastack_admin"
+postgres_password               = "CHANGE_ME_TO_SECURE_PASSWORD"  # Use a strong password!
+postgres_backup_retention_period = 7
+

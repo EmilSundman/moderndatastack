@@ -1,0 +1,11 @@
+.venv/*
+*.duckdb
+*.db
+db/
+logs
+settings.json
+.env
+*.terraform/
+# Terraform variable files with sensitive data
+*.tfvars
+*.tfvars.json
